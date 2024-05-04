@@ -173,21 +173,6 @@ MANUAL_GAME = True
 ##############################################################################
 # MAIN GAME
 ##############################################################################
-# def main():
-#     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
-#     pygame.init()
-
-#     FPSCLOCK    = pygame.time.Clock()
-#     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-#     BASICFONT   = pygame.font.Font('freesansbold.ttf', 18)
-#     BIGFONT     = pygame.font.Font('freesansbold.ttf', 100)
-#     pygame.display.set_caption('Tetris AI')
-
-#     print("Before")
-#     if (MANUAL_GAME):
-#         print("HI")
-#         run_game()
-
 global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
 pygame.init()
 
@@ -196,7 +181,6 @@ DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 BASICFONT   = pygame.font.Font('freesansbold.ttf', 18)
 BIGFONT     = pygame.font.Font('freesansbold.ttf', 100)
 pygame.display.set_caption('Tetris AI')
-
 
 def run_game():
     # Setup variables
@@ -682,6 +666,7 @@ def calc_move_info(board, piece, x, r, total_holes_bef, total_blocking_bloks_bef
 def calc_initial_move_info(board):
     total_holes          = 0
     total_blocking_bocks = 0
+    total_sum_heights    = 0 # I added it 😎
 
     for x2 in range(0, BOARDWIDTH):
         b = calc_heuristics(board, x2)
@@ -765,39 +750,3 @@ def calc_sides_in_contact(board, piece):
                     #(nao pode haver pecas em cima)
 
     return  piece_sides, floor_sides, wall_sides
-
-
-# [1, 2, 3, 4, 5, 6, 7, 8]
-# def obj_function(mx_hieght_cur, holes_cur, sum_hieghts_cur, mx_hieght_nxt, holes_nxt, sum_hieghts_nxt, cleared_rows, score, chromosome):
-#     return chromosome[0] * mx_hieght_cur + chromosome[1] * holes_cur + chromosome[2] * sum_hieghts_cur + \
-#           chromosome[3] * mx_hieght_nxt + chromosome[4] * holes_nxt + chromosome[5] * sum_hieghts_nxt + \
-#             chromosome[6] * cleared_rows + chromosome[7] * score
-    
-# def fitness(obj_val):
-#     return 1/obj_val
-
-# chromosomes = []
-# NUM_CHROMOSOMES = 12
-
-# def Initialize():
-#     for _ in range(NUM_CHROMOSOMES):
-#         chromosome = random.randint((0, 40))
-
-
-
-
-
-
-# import random
-# def generaterandom_chromosome(n):
-#     # 'L' (left), 'R' (right), 'U' (rotate), 'D' (drop)
-#     # Generate a random chromosome (sequence of moves).
-#     return [random.choice(['L', 'R', 'U', 'D']) for _ in range(n)]
-
-
-# print(generaterandom_chromosome(5))
-
-
-
-
-# main()
