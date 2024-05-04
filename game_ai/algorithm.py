@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from game_ai.tetris_base import *
 
 NUM_CHROMOSOMES = 12
@@ -178,6 +179,36 @@ def parent_selection(chromosomes, fitness):
     return selected_pop
 
 
+def crossover(population):
+    crossover_population = []   
+    for chromo in population :
+        num = random.random()
+        if (num > CROSSOVER_RATE) :
+            parent2 = random.choice(population)
+            if(chromo != parent2 ):
+                point = len(chromo)//2
+                child = chromo[0:point] + parent2[point:]
+                crossover_population.append(child)
+            else :
+                crossover_population.append(chromo)
+        else :
+            crossover_population.append(chromo)
+
+    return crossover_population
+
+
+def mutation(population):
+    for chromo in population:
+        num_of_mutation_replacement = random.randint(0,len(chromo))
+        for _ in range(num_of_mutation_replacement):
+            position_of_mutation_replacement = random.randint( 0 , len(chromo)-1)
+            if random.random() < MUT_RATE:
+                random_gene = round(random.uniform(-1000, 1000), 4)
+                chromo[position_of_mutation_replacement] = random_gene
+    return population
+
+
+
 def run_game_ai():
     chromosomes = Initialize_Chormosomes()
     Fitness_vals = list()
@@ -188,48 +219,12 @@ def run_game_ai():
 
     for i in range(ITERATIONS):
         parents = parent_selection(chromosomes, Fitness_vals)
+        parents = crossover(parents)
+        parents = mutation(parents)
+        for chromo in chromosomes:
+            game_state = run_single_chromo(chromo)
+            fitness_val = calc_fitness(game_state)
+            Fitness_vals.append(fitness_val)
 
 
 
-
-
-
-
-
-
-    # print(f"chromosomes: {chromosomes}\n")
-    initial_move_info = calc_initial_move_info(board)
-    # print(f"initial_move_info: {initial_move_info}")
-    move_info = calc_move_info(board=board, piece=falling_piece, x=falling_piece['x'], r=falling_piece['rotation'],
-                   total_holes_bef=initial_move_info[0], total_blocking_bloks_bef=initial_move_info[1])
-    # print(f"move_info: {move_info}")
-    while True:
-        # Game Loop
-        if (falling_piece == None):
-            # No falling piece in play, so start a new piece at the top
-            falling_piece = next_piece
-            next_piece = get_new_piece()
-            score += 1
-            
-            initial_move_info = calc_initial_move_info(board)
-            print(f"initial_move_info: {initial_move_info}")
-            move_info = calc_move_info(board=board, piece=falling_piece, x=falling_piece['x'], r=falling_piece['r'],
-                   total_holes_bef=initial_move_info[0], total_blocking_bloks_bef=initial_move_info[1])
-            print(f"move_info: {move_info}")
-                # Check if it's a valid movement
-            if (move_info[0]):
-                # Calculate movement score
-                # [True, max_height, num_removed_lines, new_holes, new_blocking_blocks, piece_sides, floor_sides, wall_sides]
-                # obj_function(mx_hieght_cur, holes_cur, sum_hieghts_cur, mx_hieght_nxt, holes_nxt, sum_hieghts_nxt, cleared_rows, score, chromosome):
-                movement_score = obj_function(move_info[1])
-                # Reset last_fall_time
-                last_fall_time = time.time()
-
-                if (not is_valid_position(board, falling_piece)):
-                    # GAME-OVER
-                    # Can't fit a new piece on the board, so game over.
-                    return
-
-        # Check for quit
-        check_quit()
-    obj_function()
