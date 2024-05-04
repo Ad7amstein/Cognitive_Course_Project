@@ -1,3 +1,4 @@
+import numpy as np
 from game_ai.tetris_base import *
 
 NUM_CHROMOSOMES = 12
@@ -21,8 +22,9 @@ def obj_function(mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_row
         chromosome[4] * cleared_rows + chromosome[5] * score
 
 
-def fitness(obj_val):
-    return round(1/obj_val, 4)
+def calc_fitness(game_state):
+    score = game_state[2]
+    return score
 
 
 def calc_best_move(board, piece, chromo, show_game = False):
@@ -67,11 +69,7 @@ def calc_best_move(board, piece, chromo, show_game = False):
     return best_X, best_R
 
 
-def run_single_chromo(chromosome, speed, max_score = 20000, no_show = False):
-
-    # game.FPS = int(speed)
-    # game.main()
-
+def run_single_chromo(chromosome, max_score = 20000, no_show = False):
     board            = get_blank_board()
     last_fall_time   = time.time()
     score            = 0
@@ -103,7 +101,7 @@ def run_single_chromo(chromosome, speed, max_score = 20000, no_show = False):
             calc_best_move(board, falling_piece, chromosome)
 
             # Update number of used pieces and the score
-            num_used_pieces +=1
+            num_used_pieces += 1
             score           += 1
 
             # Reset last_fall_time
@@ -112,7 +110,7 @@ def run_single_chromo(chromosome, speed, max_score = 20000, no_show = False):
             if (not is_valid_position(board, falling_piece)):
                 # GAME-OVER
                 # Can't fit a new piece on the board, so game over.
-                alive = False
+                break
 
         if no_show or time.time() - last_fall_time > fall_freq:
             if (not is_valid_position(board, falling_piece, adj_Y=1)):
@@ -158,16 +156,47 @@ def run_single_chromo(chromosome, speed, max_score = 20000, no_show = False):
 
     return game_state
 
+
+def parent_selection(chromosomes, fitness):
+    fitness_sum = fitness.sum()
+    fitness_probs  = round(fitness/fitness_sum, 4)
+
+    cumulative_sum = list()
+    cum_sum = 0
+    for i in range(len(fitness_probs)):
+        cum_sum += fitness_probs[i]
+        cumulative_sum.append(cum_sum)
+
+    R_probs = [random.random() for _ in range(NUM_CHROMOSOMES)]
+    selected_pop = list()
+    for R_num in R_probs:
+        for i, cum_num in enumerate(cumulative_sum):
+            if R_num <= cum_num:
+                selected_pop.append(chromosomes[i])
+                break
+
+    return selected_pop
+
+
 def run_game_ai():
-    board            = get_blank_board()
-    last_fall_time   = time.time()
-    score            = 0
-    level, fall_freq = calc_level_and_fall_freq(score)
-
-    falling_piece = get_new_piece()
-    next_piece = get_new_piece()
-
     chromosomes = Initialize_Chormosomes()
+    Fitness_vals = list()
+    for chromo in chromosomes:
+        game_state = run_single_chromo(chromo)
+        fitness_val = calc_fitness(game_state)
+        Fitness_vals.append(fitness_val)
+
+    for i in range(ITERATIONS):
+        parents = parent_selection(chromosomes, Fitness_vals)
+
+
+
+
+
+
+
+
+
     # print(f"chromosomes: {chromosomes}\n")
     initial_move_info = calc_initial_move_info(board)
     # print(f"initial_move_info: {initial_move_info}")
