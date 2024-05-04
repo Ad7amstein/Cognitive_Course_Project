@@ -1,10 +1,14 @@
 from game_ai.tetris_base import *
+from game_ai.algorithm import run_game_ai
+
 ##############################################################################
 # MAIN GAME
 ##############################################################################
 def main():
     if (MANUAL_GAME):
         run_game()
+    else:
+        run_game_ai()
     
 
 if __name__ == "__main__":
