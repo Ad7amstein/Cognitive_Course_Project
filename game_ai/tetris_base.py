@@ -7,7 +7,7 @@ from pygame.locals import *
 ##############################################################################
 
 # Board config
-FPS          = 500
+FPS          =  400000
 WINDOWWIDTH  = 650
 WINDOWHEIGHT = 690
 BOXSIZE      = 25

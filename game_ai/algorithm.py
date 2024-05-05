@@ -2,7 +2,7 @@ import numpy as np
 import copy
 from game_ai.tetris_base import *
 NUM_CHROMOSOMES = 12
-NUM_GENES = 5
+NUM_GENES = 9
 ITERATIONS = 400
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
@@ -16,11 +16,12 @@ def Initialize_Chormosomes():
     return chromosomes
 
 
-def obj_function(mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_rows, score, chromosome):
+def obj_function(mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_rows, piece_sides, floor_sides, wall_sides , score ,chromosome ):
     return chromosome[0] * mx_hieght_cur + chromosome[1] * holes_cur + \
-        chromosome[2] * mx_hieght_nxt + chromosome[3] * holes_nxt + \
-        chromosome[4] * cleared_rows 
-            # + chromosome[5] * score
+           chromosome[2] * mx_hieght_nxt + chromosome[3] * holes_nxt + \
+           chromosome[4] * cleared_rows  + chromosome[5] * piece_sides + \
+           chromosome[6] * floor_sides   + chromosome[7] * wall_sides +\
+           chromosome[8] * score
 
 
 def calc_fitness(game_state):
@@ -28,7 +29,7 @@ def calc_fitness(game_state):
     return score
 
 
-def calc_best_move(board, piece, chromo, show_game = False):
+def calc_best_move(board, piece, score ,chromo, show_game = False):
     best_X     = 0
     best_R     = 0
     best_Y     = 0
@@ -51,7 +52,7 @@ def calc_best_move(board, piece, chromo, show_game = False):
             if (movement_info[0]):
                 # Calculate movement score
                 # mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_rows, score, chromosome
-                movement_score = obj_function(init_move_info[2], init_move_info[0], movement_info[1], movement_info[3], movement_info[2], 0, chromo)
+                movement_score = obj_function(init_move_info[2], init_move_info[0], movement_info[1], movement_info[3], movement_info[2], movement_info[-3], movement_info[-2], movement_info[-1] ,  score , chromo)
 
                 # Update best movement
                 if (movement_score > best_score):
@@ -94,7 +95,7 @@ def run_single_chromo(chromosome, max_score = 90000, no_show = False):
     next_piece       = get_new_piece()
 
     # Calculate best move
-    calc_best_move(board, falling_piece, chromosome)
+    calc_best_move(board, falling_piece, score ,chromosome)
 
     num_used_pieces = 0
     removed_lines   = [0,0,0,0] # Combos
@@ -114,7 +115,7 @@ def run_single_chromo(chromosome, max_score = 90000, no_show = False):
             next_piece    = get_new_piece()
 
             # Decide the best move based on your weights
-            calc_best_move(board, falling_piece, chromosome)
+            calc_best_move(board, falling_piece, score ,chromosome)
 
             # Update number of used pieces and the score
             num_used_pieces += 1
@@ -245,40 +246,57 @@ def replacement(chromosomes  , fitness):
 
     return chromosomes , fitness
 
+# def print_c (chromosomes , fitness ) :
+#     indices = [i for i in( range(9))]
+#     a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+#     b = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+#     random.shuffle(indices)
+#
+#     aa = [a[i] for i in indices]
+#     bb = [b[i] for i in indices]
+
 
 
 def run_game_ai():
     # chromo  = [-29.291, 26.7928, -45.4222, -62.8233, -2.349]
-    # run_single_chromo(chromo)
-    chromosomes = Initialize_Chormosomes()
-    # print(f"chromosomes : {chromosomes}")
-    Fitness_vals = list()
-    for chromo in chromosomes:
-        game_state = run_single_chromo(chromo)
-        fitness_val = calc_fitness(game_state)
-        Fitness_vals.append(fitness_val)
 
-    for i in range(ITERATIONS):
-        print(f"\ni : {i}")
-        best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-        parents = parent_selection(chromosomes, Fitness_vals)
-        parents = crossover(parents)
-        parents = mutation(parents)
-        Fitness_vals = []
-        for chromo in chromosomes:
-
-            game_state = run_single_chromo(chromo)
-            fitness_val = calc_fitness(game_state)
-            Fitness_vals.append(fitness_val)
-
-        best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
-
-        chromosomes = best_chromo1 + best_chromo2
-        Fitness_vals = best_fitness1 + best_fitness2
-        print(f" len {len(parents)}parents : {parents}")
-        print(f"Fitness_vals : {Fitness_vals}")
+    chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
+    run_single_chromo(chromo)
 
 
+
+    #
+    # chromosomes = Initialize_Chormosomes()
+    # # print(f"chromosomes : {chromosomes}")
+    # Fitness_vals = list()
+    #
+    # for chromo in chromosomes:
+    #     game_state = run_single_chromo(chromo)
+    #     fitness_val = calc_fitness(game_state)
+    #     Fitness_vals.append(fitness_val)
+    #
+    # for i in range(ITERATIONS):
+    #     print(f"\ni : {i}")
+    #     best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
+    #     parents = parent_selection(chromosomes, Fitness_vals)
+    #     parents = crossover(parents)
+    #     parents = mutation(parents)
+    #
+    #     Fitness_vals = []
+    #     for par in parents:
+    #         game_state = run_single_chromo(par)
+    #         fitness_val = calc_fitness(game_state)
+    #         Fitness_vals.append(fitness_val)
+    #
+    #     best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
+    #     chromosomes  = best_chromo1 + best_chromo2
+    #     Fitness_vals = best_fitness1 + best_fitness2
+    #
+    #
+    #     print(f" len {len(chromosomes)}parents : {chromosomes}")
+    #     print(f"Fitness_vals : {Fitness_vals}")
+    #
+    #
 
 
 
