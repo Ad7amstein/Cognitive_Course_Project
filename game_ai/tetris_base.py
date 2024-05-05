@@ -7,7 +7,7 @@ from pygame.locals import *
 ##############################################################################
 
 # Board config
-FPS          = 25
+FPS          = 500
 WINDOWWIDTH  = 650
 WINDOWHEIGHT = 690
 BOXSIZE      = 25
@@ -168,20 +168,19 @@ PIECES = {'S': S_SHAPE_TEMPLATE,
           'T': T_SHAPE_TEMPLATE}
 
 # Define if the game is manual or not
-MANUAL_GAME = True
+MANUAL_GAME = False
 
 ##############################################################################
 # MAIN GAME
 ##############################################################################
-def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
-    pygame.init()
+global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
+pygame.init()
 
-    FPSCLOCK    = pygame.time.Clock()
-    DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-    BASICFONT   = pygame.font.Font('freesansbold.ttf', 18)
-    BIGFONT     = pygame.font.Font('freesansbold.ttf', 100)
-    pygame.display.set_caption('Tetris AI')
+FPSCLOCK = pygame.time.Clock()
+DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
+BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
+pygame.display.set_caption('Tetris AI')
 
 def run_game():
     # Setup variables

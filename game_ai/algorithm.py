@@ -1,7 +1,6 @@
 import numpy as np
 import copy
 from game_ai.tetris_base import *
-
 NUM_CHROMOSOMES = 12
 NUM_GENES = 5
 ITERATIONS = 400
@@ -12,7 +11,7 @@ CROSSOVER_RATE = 0.3
 def Initialize_Chormosomes():
     chromosomes = []
     for _ in range(NUM_CHROMOSOMES):
-        chromosome = [round(random.uniform(-1000, 1000), 2) for _ in range(NUM_GENES)]
+        chromosome = [round(random.uniform(-100, 100), 2) for _ in range(NUM_GENES)]
         chromosomes.append(chromosome)
     return chromosomes
 
@@ -20,7 +19,8 @@ def Initialize_Chormosomes():
 def obj_function(mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_rows, score, chromosome):
     return chromosome[0] * mx_hieght_cur + chromosome[1] * holes_cur + \
         chromosome[2] * mx_hieght_nxt + chromosome[3] * holes_nxt + \
-        chromosome[4] * cleared_rows + chromosome[5] * score
+        chromosome[4] * cleared_rows 
+            # + chromosome[5] * score
 
 
 def calc_fitness(game_state):
@@ -36,8 +36,9 @@ def calc_best_move(board, piece, chromo, show_game = False):
 
     # Calculate the total the holes and blocks above holes before play
     init_move_info = calc_initial_move_info(board)
+    # print(f"init_move_info : {init_move_info}")
     # total_holes, total_blocking_bocks, total_sum_heights
-    for r in range(len(PIECES[piece['rotation']])):
+    for r in range(len(PIECES[piece['shape']])):
         # Iterate through every possible rotation
         for x in range(-2,BOARDWIDTH-2):
             #Iterate through every possible position
@@ -58,7 +59,6 @@ def calc_best_move(board, piece, chromo, show_game = False):
                     best_X = x
                     best_R = r
                     best_Y = piece['y']
-
     if (show_game):
         piece['y'] = best_Y
     else:
@@ -70,7 +70,22 @@ def calc_best_move(board, piece, chromo, show_game = False):
     return best_X, best_R
 
 
-def run_single_chromo(chromosome, max_score = 20000, no_show = False):
+def draw_game_on_screen(board, score, level, next_piece, falling_piece, chromosome):
+    """Draw game on the screen"""
+
+    DISPLAYSURF.fill(BGCOLOR)
+    draw_board(board)
+    draw_status(score, level)
+    draw_next_piece(next_piece)
+
+    if falling_piece != None:
+        draw_piece(falling_piece)
+
+    pygame.display.update()
+    FPSCLOCK.tick(FPS)
+
+
+def run_single_chromo(chromosome, max_score = 90000, no_show = False):
     board            = get_blank_board()
     last_fall_time   = time.time()
     score            = 0
@@ -143,9 +158,8 @@ def run_single_chromo(chromosome, max_score = 20000, no_show = False):
                 falling_piece['y'] += 1
                 last_fall_time = time.time()
 
-        # if (not no_show):
-        #     draw_game_on_screen(board, score, level, next_piece, falling_piece,
-        #                         chromosome)
+        if (not no_show):
+            draw_game_on_screen(board, score, level, next_piece, falling_piece,chromosome)
 
         # Stop condition
         if (score > max_score):
@@ -159,8 +173,9 @@ def run_single_chromo(chromosome, max_score = 20000, no_show = False):
 
 
 def parent_selection(chromosomes, fitness):
-    fitness_sum = fitness.sum()
-    fitness_probs  = round(fitness/fitness_sum, 4)
+    fitness = np.array(fitness)
+    fitness_sum = sum(fitness)
+    fitness_probs  = np.round(fitness/fitness_sum, 4)
 
     cumulative_sum = list()
     cum_sum = 0
@@ -203,14 +218,40 @@ def mutation(population):
         for _ in range(num_of_mutation_replacement):
             position_of_mutation_replacement = random.randint( 0 , len(chromo)-1)
             if random.random() < MUT_RATE:
-                random_gene = round(random.uniform(-1000, 1000), 4)
+                random_gene = round(random.uniform(-100, 100), 4)
                 chromo[position_of_mutation_replacement] = random_gene
     return population
 
 
 
+def replacement(chromosomes  , fitness):
+    new_chromosome = []
+
+    for i in range(len(chromosomes)):
+        t = [chromosomes[i], fitness[i]]
+        new_chromosome.append(t)
+
+    sorted_chromo = sorted(new_chromosome, key=lambda x: x[1], reverse=True)
+    sorted_chromo = sorted_chromo[:int(len(new_chromosome)/2)]
+
+    chromosomes = []
+    fitness = []
+    for i in range(len(sorted_chromo)):
+        chromo = sorted_chromo[i][0]
+        fit = sorted_chromo[i][1]
+        chromosomes.append(chromo)
+        fitness.append(fit)
+
+
+    return chromosomes , fitness
+
+
+
 def run_game_ai():
+    # chromo  = [-29.291, 26.7928, -45.4222, -62.8233, -2.349]
+    # run_single_chromo(chromo)
     chromosomes = Initialize_Chormosomes()
+    # print(f"chromosomes : {chromosomes}")
     Fitness_vals = list()
     for chromo in chromosomes:
         game_state = run_single_chromo(chromo)
@@ -218,13 +259,26 @@ def run_game_ai():
         Fitness_vals.append(fitness_val)
 
     for i in range(ITERATIONS):
+        print(f"\ni : {i}")
+        best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
         parents = parent_selection(chromosomes, Fitness_vals)
         parents = crossover(parents)
         parents = mutation(parents)
+        Fitness_vals = []
         for chromo in chromosomes:
+
             game_state = run_single_chromo(chromo)
             fitness_val = calc_fitness(game_state)
             Fitness_vals.append(fitness_val)
+
+        best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
+
+        chromosomes = best_chromo1 + best_chromo2
+        Fitness_vals = best_fitness1 + best_fitness2
+        print(f" len {len(parents)}parents : {parents}")
+        print(f"Fitness_vals : {Fitness_vals}")
+
+
 
 
 
