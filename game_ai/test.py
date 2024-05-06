@@ -179,6 +179,7 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
             - The final score.
             - Whether the game was won or not.
     """
+    num_piece = 600
     board            = get_blank_board()
     last_fall_time   = time.time()
     score            = 0
@@ -194,8 +195,9 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
 
 
     is_win   = False
-
     while True:
+        if (num_used_pieces >= 600) :
+            break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print ("Game exited by user")
@@ -210,6 +212,7 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
             get_best_move(board, falling_piece, score ,chromosome)
 
             # Update number of used pieces and the score
+            print(f"num_used_pieces : {num_used_pieces}")
             num_used_pieces += 1
             score           += 1
 
@@ -242,7 +245,6 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
                     score += 1200
                 level, fall_freq = calc_level_and_fall_freq(score)
                 falling_piece = None
-
             else:
                 # Piece did not land, just move the piece down
                 falling_piece['y'] += 1
@@ -388,69 +390,12 @@ def replacement(chromosomes  , fitness):
     return chromosomes , fitness
 #***********************************************************
 #***********************************************************
-def clear_file ():
-    file_path = FILE_PATH
-    with open(file_path, "w") as file:
-        pass  # Using pass to do nothing, effectively clears the file
-def write_to_file(chromosomes, fitness, i ):
-    # Open a file in append mode (creates a new file if it doesn't exist)
-    with open(FILE_PATH, "a") as file:
-        # Append content to the file
-        file.write(f"iteration :  {i}\nchromosomes: \n{chromosomes}\nfitness: {fitness}\nbest_score: {max(fitness)}\n")
-        file.write("****************************************************************************\n")
-
-        # Flush the buffer to ensure data is written to the file immediately
-        file.flush()
 
 #***********************************************************
 #***********************************************************
-def run_game_ai():
-    clear_file()
+def test_main():
 
-    # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
-    # run_single_chromo(chromo)
+    chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
+    run_single_chromo(chromo)
 
-
-
-    chromosomes = Initialize_Chormosomes()
-    # print(f"chromosomes : {chromosomes}")
-    Fitness_vals = list()
-
-
-    best1_fitness = []
-    best2_fitness = []
-
-    best_two_chromosomes = []
-
-
-
-    for chromo in chromosomes:
-        game_state = run_single_chromo(chromo)
-        fitness_val = calc_fitness(game_state)
-        Fitness_vals.append(fitness_val)
-
-    for i in range(ITERATIONS):
-        # print(f"\ni : {i}")
-        best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-        best_two_chromosomes.extend ([best_chromo1[0] , best_chromo1[1]])
-        best1_fitness.append(best_fitness1[0])
-        best2_fitness.append((best_fitness1[1]))
-        parents = parent_selection(chromosomes, Fitness_vals)
-        parents = crossover(parents)
-        parents = mutation(parents)
-
-        Fitness_vals = []
-        for par in parents:
-            game_state = run_single_chromo(par)
-            fitness_val = calc_fitness(game_state)
-            Fitness_vals.append(fitness_val)
-
-        best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
-        chromosomes  = best_chromo1 + best_chromo2
-        Fitness_vals = best_fitness1 + best_fitness2
-
-
-        # print(f" len {len(chromosomes)}parents : {chromosomes}")
-        # print(f"Fitness_vals : {Fitness_vals}")
-        print("NOW!!!!!!!!!!!!!!!!!!!!!!")
-        write_to_file(chromosomes, Fitness_vals, i)
+test_main()

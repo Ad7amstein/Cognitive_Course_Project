@@ -11,8 +11,10 @@ def main():
     if (MANUAL_GAME):
         run_game()
     else:
+        # test_main()
         run_game_ai()
-    
+#
 
 if __name__ == "__main__":
     main()
+

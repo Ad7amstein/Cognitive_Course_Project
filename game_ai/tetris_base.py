@@ -1,13 +1,13 @@
 import random, time, pygame, sys
 from pygame.locals import *
-
+random.seed(42)
 
 ##############################################################################
 # SETTING UP GENERAL CONSTANTS
 ##############################################################################
 
 # Board config
-FPS          =  400000
+FPS          =  8000
 WINDOWWIDTH  = 650
 WINDOWHEIGHT = 690
 BOXSIZE      = 25
