@@ -1,7 +1,8 @@
 import numpy as np
 import copy
 from game_ai.tetris_base import *
-NUM_CHROMOSOMES = 12
+FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
+NUM_CHROMOSOMES = 14
 NUM_GENES = 9
 ITERATIONS = 400
 MUT_RATE = 0.1
@@ -159,7 +160,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromosome, max_score = 90000, show = True):
+def run_single_chromo(chromosome, max_score = 90000, show = False):
     """
     Simulates a game using a single chromosome.
 
@@ -384,44 +385,52 @@ def replacement(chromosomes  , fitness):
     return chromosomes , fitness
 #***********************************************************
 #***********************************************************
+def write_to_file(chromosomes, fitness):
+    # Open a file in append mode (creates a new file if it doesn't exist)
+    with open(FILE_PATH, "a") as file:
+        # Append content to the file
+        file.write(f"chromosomes: \n{chromosomes}\nfitness: {fitness}\nbest_score: {max(fitness)}")
+
+        # Flush the buffer to ensure data is written to the file immediately
+        file.flush()
+
+#***********************************************************
+#***********************************************************
 def run_game_ai():
 
-    chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
-    run_single_chromo(chromo)
+    # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
+    # run_single_chromo(chromo)
 
 
 
-    # chromosomes = Initialize_Chormosomes()
-    # # print(f"chromosomes : {chromosomes}")
-    # Fitness_vals = list()
-    #
-    # for chromo in chromosomes:
-    #     game_state = run_single_chromo(chromo)
-    #     fitness_val = calc_fitness(game_state)
-    #     Fitness_vals.append(fitness_val)
-    #
-    # for i in range(ITERATIONS):
-    #     print(f"\ni : {i}")
-    #     best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-    #     parents = parent_selection(chromosomes, Fitness_vals)
-    #     parents = crossover(parents)
-    #     parents = mutation(parents)
-    #
-    #     Fitness_vals = []
-    #     for par in parents:
-    #         game_state = run_single_chromo(par)
-    #         fitness_val = calc_fitness(game_state)
-    #         Fitness_vals.append(fitness_val)
-    #
-    #     best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
-    #     chromosomes  = best_chromo1 + best_chromo2
-    #     Fitness_vals = best_fitness1 + best_fitness2
-    #
-    #
-    #     print(f" len {len(chromosomes)}parents : {chromosomes}")
-    #     print(f"Fitness_vals : {Fitness_vals}")
-    #
-    # #
+    chromosomes = Initialize_Chormosomes()
+    # print(f"chromosomes : {chromosomes}")
+    Fitness_vals = list()
+    
+    for chromo in chromosomes:
+        game_state = run_single_chromo(chromo)
+        fitness_val = calc_fitness(game_state)
+        Fitness_vals.append(fitness_val)
+    
+    for i in range(ITERATIONS):
+        print(f"\ni : {i}")
+        best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
+        parents = parent_selection(chromosomes, Fitness_vals)
+        parents = crossover(parents)
+        parents = mutation(parents)
+    
+        Fitness_vals = []
+        for par in parents:
+            game_state = run_single_chromo(par)
+            fitness_val = calc_fitness(game_state)
+            Fitness_vals.append(fitness_val)
+    
+        best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
+        chromosomes  = best_chromo1 + best_chromo2
+        Fitness_vals = best_fitness1 + best_fitness2
 
 
-
+        # print(f" len {len(chromosomes)}parents : {chromosomes}")
+        # print(f"Fitness_vals : {Fitness_vals}")
+        print("NOW!!!!!!!!!!!!!!!!!!!!!!")
+        write_to_file(chromosomes, Fitness_vals)
