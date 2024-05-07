@@ -1,34 +1,13 @@
-import numpy as np
 import random
 random.seed(42)
-import copy
 from game_ai.tetris_base import *
-FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\log_file.txt"
+FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
 NUM_CHROMOSOMES = 14
 NUM_GENES = 9
 ITERATIONS = 400
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
 
-#***********************************************************
-#***********************************************************
-def Initialize_Chormosomes():
-    """
-    Initializes a list of chromosomes.
-
-    Returns:
-    - List: A list of randomly generated chromosomes.
-    """
-    # Empty list to store chromosomes
-    chromosomes = []
-    # Loop to create specified number of chromosomes
-    for _ in range(NUM_CHROMOSOMES):
-        # Generate a random list of genes for each chromosome
-        chromosome = [round(random.uniform(-100, 100), 2) for _ in range(NUM_GENES)]
-        # Add the chromosome to the list of chromosomes
-        chromosomes.append(chromosome)
-    # Return the list of chromosomes
-    return chromosomes
 #***********************************************************
 #***********************************************************
 def obj_function(mx_hieght_cur, holes_cur, mx_hieght_nxt, holes_nxt, cleared_rows, piece_sides, floor_sides, wall_sides , score ,chromosome ):
@@ -162,7 +141,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromosome, max_score = 90000, show = True):
+def run_single_chromo(chromosome, max_score = 100000, show = True):
     """
     Simulates a game using a single chromosome.
 
@@ -196,8 +175,8 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
 
     is_win   = False
     while True:
-        if (num_used_pieces >= 600) :
-            break
+        # if (num_used_pieces >= 600) :
+        #     break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print ("Game exited by user")
@@ -263,138 +242,10 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
     return game_state
 #***********************************************************
 #***********************************************************
-def parent_selection(chromosomes, fitness):
-    """
-    Selects parents from the population
-
-    Args:
-    - chromosomes: A list of chromosomes representing the population.
-    - fitness: A list containing the fitness values of each chromosome.
-
-    Returns:
-    - List: A list of selected parent chromosomes.
-    """
-    fitness = np.array(fitness)
-    fitness_sum = sum(fitness)
-    # Calculate the probabilities.
-    fitness_probs  = np.round(fitness/fitness_sum, 4)
-    # Calculate cumulative probabilities.
-    cumulative_sum = list()
-    cum_sum = 0
-    for i in range(len(fitness_probs)):
-        cum_sum += fitness_probs[i]
-        cumulative_sum.append(cum_sum)
-    # Generate random numbers for selection
-    R_probs = [random.random() for _ in range(NUM_CHROMOSOMES)]
-    # Select parents using roulette wheel selection
-    selected_pop = list()
-    for R_num in R_probs:
-        for i, cum_num in enumerate(cumulative_sum):
-            if R_num <= cum_num:
-                selected_pop.append(chromosomes[i])
-                break
-
-    return selected_pop
-#***********************************************************
-#***********************************************************
-def crossover(population):
-    """
-    Performs crossover operation on a population of chromosomes.
-
-    Args:
-    - population: A list of chromosomes representing the population.
-
-    Returns:
-    - List: A list of chromosomes after crossover operation.
-    """
-    crossover_population = []
-    # Iterate over each chromosome in the population
-    for chromo in population :
-        # Generate a random number
-        num = random.random()
-        # Check if crossover should be performed based on crossover rate
-        if (num > CROSSOVER_RATE) :
-            # Select a random parent from the population
-            parent2 = random.choice(population)
-            # Perform crossover if the selected parent is different from the current chromosome
-            if(chromo != parent2 ):
-                # Select a crossover point
-                point = len(chromo)//2
-                # Perform crossover by combining the first part of the current chromosome with the second part of the selected parent chromosome
-                child = chromo[0:point] + parent2[point:]
-                # Add the child chromosome to the crossover population
-                crossover_population.append(child)
-            else :
-                crossover_population.append(chromo)
-        else :
-            crossover_population.append(chromo)
-    return crossover_population
-#***********************************************************
-#***********************************************************
-def mutation(population):
-    """
-    Performs mutation operation on a population of chromosomes.
-
-    Args:
-    - population: A list of chromosomes representing the population.
-
-    Returns:
-    - List: A list of chromosomes after mutation operation.
-    """
-    # Iterate over each chromosome in the population
-    for chromo in population:
-        # Determine the number of mutation replacements for the current chromosome
-        num_of_mutation_replacement = random.randint(0,len(chromo))
-        # Perform mutation for the determined number of replacements
-        for _ in range(num_of_mutation_replacement):
-            # Select a random position for mutation replacement
-            position_of_mutation_replacement = random.randint( 0 , len(chromo)-1)
-            # Check if mutation should be performed based on mutation rate
-            if random.random() < MUT_RATE:
-                # Generate a random gene for mutation replacement
-                random_gene = round(random.uniform(-100, 100), 4)
-                # Perform mutation replacement at the selected position
-                chromo[position_of_mutation_replacement] = random_gene
-    return population
-#***********************************************************
-#***********************************************************
-def replacement(chromosomes  , fitness):
-    """
-    Performs replacement operation in the genetic algorithm.
-
-    Args:
-    - chromosomes: A list of chromosomes representing the current population.
-    - fitness: A list containing the fitness values of each chromosome.
-
-    Returns:
-    - updated chromosomes and fitness values after replacement.
-    """
-    new_chromosome = []
-    # Combine chromosomes with their fitness values
-    for i in range(len(chromosomes)):
-        t = [chromosomes[i], fitness[i]]
-        new_chromosome.append(t)
-    # Sort the combined list based on fitness values in descending order
-    sorted_chromo = sorted(new_chromosome, key=lambda x: x[1], reverse=True)
-    # Select the top half of the sorted list to survive
-    sorted_chromo = sorted_chromo[:int(len(new_chromosome)/2)]
-
-    # Separate chromosomes and fitness values
-    chromosomes = []
-    fitness = []
-    for i in range(len(sorted_chromo)):
-        chromo = sorted_chromo[i][0]
-        fit = sorted_chromo[i][1]
-        chromosomes.append(chromo)
-        fitness.append(fit)
-    return chromosomes , fitness
-#***********************************************************
-#***********************************************************
-
-#***********************************************************
-#***********************************************************
 def test_main():
 
+    # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
+    # run_single_chromo(chromo)
     chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
     run_single_chromo(chromo)
 

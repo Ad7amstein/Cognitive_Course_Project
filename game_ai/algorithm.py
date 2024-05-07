@@ -1,10 +1,11 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 random.seed(42)
 import copy
 from game_ai.tetris_base import *
-FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\log_file.txt"
-NUM_CHROMOSOMES = 14
+FILE_PATH = FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
+NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
 MUT_RATE = 0.1
@@ -162,7 +163,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromosome, max_score = 90000, show = True):
+def run_single_chromo(chromo, max_score = 1000000, show = False):
     """
     Simulates a game using a single chromosome.
 
@@ -179,6 +180,7 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
             - The final score.
             - Whether the game was won or not.
     """
+    chromosome = copy.deepcopy(chromo)
     board            = get_blank_board()
     last_fall_time   = time.time()
     score            = 0
@@ -261,7 +263,7 @@ def run_single_chromo(chromosome, max_score = 90000, show = True):
     return game_state
 #***********************************************************
 #***********************************************************
-def parent_selection(chromosomes, fitness):
+def parent_selection(chromos, fitness_vals):
     """
     Selects parents from the population
 
@@ -272,6 +274,8 @@ def parent_selection(chromosomes, fitness):
     Returns:
     - List: A list of selected parent chromosomes.
     """
+    chromosomes = copy.deepcopy(chromos)
+    fitness = copy.deepcopy(fitness_vals)
     fitness = np.array(fitness)
     fitness_sum = sum(fitness)
     # Calculate the probabilities.
@@ -295,7 +299,7 @@ def parent_selection(chromosomes, fitness):
     return selected_pop
 #***********************************************************
 #***********************************************************
-def crossover(population):
+def crossover(pop):
     """
     Performs crossover operation on a population of chromosomes.
 
@@ -305,6 +309,7 @@ def crossover(population):
     Returns:
     - List: A list of chromosomes after crossover operation.
     """
+    population = copy.deepcopy(pop)
     crossover_population = []
     # Iterate over each chromosome in the population
     for chromo in population :
@@ -329,7 +334,7 @@ def crossover(population):
     return crossover_population
 #***********************************************************
 #***********************************************************
-def mutation(population):
+def mutation(pop):
     """
     Performs mutation operation on a population of chromosomes.
 
@@ -339,6 +344,7 @@ def mutation(population):
     Returns:
     - List: A list of chromosomes after mutation operation.
     """
+    population = copy.deepcopy(pop)
     # Iterate over each chromosome in the population
     for chromo in population:
         # Determine the number of mutation replacements for the current chromosome
@@ -356,7 +362,7 @@ def mutation(population):
     return population
 #***********************************************************
 #***********************************************************
-def replacement(chromosomes  , fitness):
+def replacement(chromos  , fit):
     """
     Performs replacement operation in the genetic algorithm.
 
@@ -368,6 +374,8 @@ def replacement(chromosomes  , fitness):
     - updated chromosomes and fitness values after replacement.
     """
     new_chromosome = []
+    chromosomes = copy.deepcopy(chromos)
+    fitness = copy.deepcopy(fit)
     # Combine chromosomes with their fitness values
     for i in range(len(chromosomes)):
         t = [chromosomes[i], fitness[i]]
@@ -404,25 +412,35 @@ def write_to_file(chromosomes, fitness, i ):
 
 #***********************************************************
 #***********************************************************
+def plot_lists(list1, list2, file_name="plot.png"):
+    # Plotting the lists
+    plt.plot(list1, label='Chromosome 1')
+    plt.plot(list2, label='Chromosome 2')
+
+    # Adding labels and title
+    plt.xlabel('Iterations')
+    plt.ylabel('Score')
+    plt.title('The progress of the best two chromosomes in all states')
+
+    # Adding legend
+    plt.legend()
+
+    # Showing the plot
+    plt.savefig(file_name)
+    plt.show()
+
+#***********************************************************
+#***********************************************************
 def run_game_ai():
     clear_file()
 
-    # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
-    # run_single_chromo(chromo)
-
-
-
     chromosomes = Initialize_Chormosomes()
-    # print(f"chromosomes : {chromosomes}")
     Fitness_vals = list()
-
 
     best1_fitness = []
     best2_fitness = []
 
     best_two_chromosomes = []
-
-
 
     for chromo in chromosomes:
         game_state = run_single_chromo(chromo)
@@ -430,9 +448,8 @@ def run_game_ai():
         Fitness_vals.append(fitness_val)
 
     for i in range(ITERATIONS):
-        # print(f"\ni : {i}")
         best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-        best_two_chromosomes.extend ([best_chromo1[0] , best_chromo1[1]])
+        best_two_chromosomes.extend([best_chromo1[0] , best_chromo1[1]])
         best1_fitness.append(best_fitness1[0])
         best2_fitness.append((best_fitness1[1]))
         parents = parent_selection(chromosomes, Fitness_vals)
@@ -449,8 +466,6 @@ def run_game_ai():
         chromosomes  = best_chromo1 + best_chromo2
         Fitness_vals = best_fitness1 + best_fitness2
 
-
-        # print(f" len {len(chromosomes)}parents : {chromosomes}")
-        # print(f"Fitness_vals : {Fitness_vals}")
-        print("NOW!!!!!!!!!!!!!!!!!!!!!!")
         write_to_file(chromosomes, Fitness_vals, i)
+
+    plot_lists(best1_fitness, best2_fitness)
