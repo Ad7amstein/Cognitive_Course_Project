@@ -319,16 +319,15 @@ def crossover(pop):
         if (num > CROSSOVER_RATE) :
             # Select a random parent from the population
             parent2 = random.choice(population)
-            # Perform crossover if the selected parent is different from the current chromosome
-            if(chromo != parent2 ):
-                # Select a crossover point
-                point = len(chromo)//2
-                # Perform crossover by combining the first part of the current chromosome with the second part of the selected parent chromosome
-                child = chromo[0:point] + parent2[point:]
-                # Add the child chromosome to the crossover population
-                crossover_population.append(child)
-            else :
-                crossover_population.append(chromo)
+            while (chromo == parent2):
+                parent2 = random.choice(population)
+            # Select a crossover point
+            point = len(chromo)//2
+            # Perform crossover by combining the first part of the current chromosome with the second part of the selected parent chromosome
+            child = chromo[0:point] + parent2[point:]
+            # Add the child chromosome to the crossover population
+            crossover_population.append(child)
+
         else :
             crossover_population.append(chromo)
     return crossover_population
