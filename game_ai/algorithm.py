@@ -4,7 +4,7 @@ import random
 random.seed(42)
 import copy
 from game_ai.tetris_base import *
-FILE_PATH = FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
+FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\logfile.txt"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
@@ -327,7 +327,6 @@ def crossover(pop):
             child = chromo[0:point] + parent2[point:]
             # Add the child chromosome to the crossover population
             crossover_population.append(child)
-
         else :
             crossover_population.append(chromo)
     return crossover_population
@@ -431,6 +430,7 @@ def plot_lists(list1, list2, file_name="plot.png"):
 #***********************************************************
 #***********************************************************
 def run_game_ai():
+    print("in run game")
     clear_file()
 
     chromosomes = Initialize_Chormosomes()
@@ -447,6 +447,7 @@ def run_game_ai():
         Fitness_vals.append(fitness_val)
 
     for i in range(ITERATIONS):
+        print("in itr")
         best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
         best_two_chromosomes.extend([best_chromo1[0] , best_chromo1[1]])
         best1_fitness.append(best_fitness1[0])

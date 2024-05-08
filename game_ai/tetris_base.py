@@ -7,7 +7,7 @@ random.seed(42)
 ##############################################################################
 
 # Board config
-FPS          =  8000
+FPS          =  90000000000
 WINDOWWIDTH  = 650
 WINDOWHEIGHT = 690
 BOXSIZE      = 25
