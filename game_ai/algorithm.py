@@ -8,6 +8,7 @@ FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\lo
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
+NUM_EVOLUTIONS = 10
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
 
@@ -398,12 +399,12 @@ def clear_file ():
     file_path = FILE_PATH
     with open(file_path, "w") as file:
         pass  # Using pass to do nothing, effectively clears the file
-def write_to_file(chromosomes, fitness, i ):
+def write_to_file(chromosomes, fitness, i , evol ):
     # Open a file in append mode (creates a new file if it doesn't exist)
     with open(FILE_PATH, "a") as file:
         # Append content to the file
-        file.write(f"iteration :  {i}\nchromosomes: \n{chromosomes}\nfitness: {fitness}\nbest_score: {max(fitness)}\n")
-        file.write("****************************************************************************\n")
+        file.write(f" |iteration :  {i}\n |  chromosomes: \n |  {chromosomes}\n |  fitness: {fitness}\n |  best_score: {max(fitness)}\n")
+        file.write(" |**************************************************************************\n")
 
         # Flush the buffer to ensure data is written to the file immediately
         file.flush()
@@ -430,42 +431,84 @@ def plot_lists(list1, list2, file_name="plot.png"):
 #***********************************************************
 #***********************************************************
 def run_game_ai():
-    print("in run game")
     clear_file()
+    # save chromosomes and it's fitness from all evolutions
+    evolutions_chromosomes_list = []
+    evolutions_fitness_list = []
 
-    chromosomes = Initialize_Chormosomes()
-    Fitness_vals = list()
+    best_chromosomes = [] # save best two chromosomes for each evolutions (size = 2 * num of ITERATIONS(400) = 800)
+    best_fitness = []     # save best two fitness for each evolutions     (size = 2 * num of ITERATIONS(400) = 800)
 
-    best1_fitness = []
-    best2_fitness = []
 
-    best_two_chromosomes = []
+    # loop on NUM_EVOLUTIONS (10)
+    for evol in range (NUM_EVOLUTIONS):
+        print(f"Evolution : {evol}")
 
-    for chromo in chromosomes:
-        game_state = run_single_chromo(chromo)
-        fitness_val = calc_fitness(game_state)
-        Fitness_vals.append(fitness_val)
+        with open(FILE_PATH, "a") as file:
+            # Append content to the file
+            file.write(f"===========================================================================\n")
+            file.write(f"Evolution : {evol}\n")
 
-    for i in range(ITERATIONS):
-        print("in itr")
-        best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-        best_two_chromosomes.extend([best_chromo1[0] , best_chromo1[1]])
-        best1_fitness.append(best_fitness1[0])
-        best2_fitness.append((best_fitness1[1]))
-        parents = parent_selection(chromosomes, Fitness_vals)
-        parents = crossover(parents)
-        parents = mutation(parents)
+        # Initialize Chormosomes for the Evolution
+        chromosomes = Initialize_Chormosomes()
+        # save fitness for the Chormosomes
+        Fitness_vals = list()
 
-        Fitness_vals = []
-        for par in parents:
-            game_state = run_single_chromo(par)
+        best_two_fitness = []    # save best two fitness for the Evolution
+        best_two_chromosomes = [] # save best two chromosomes for the Evolution
+
+        #loop on Initialized Chormosomes
+        for chromo in chromosomes:
+            # run_single_chromo for each chromosome in Initialized Chormosomes and calc fitness values
+            game_state = run_single_chromo(chromo)
             fitness_val = calc_fitness(game_state)
+            # append fitness value for each Chormosomes on fitness values
             Fitness_vals.append(fitness_val)
 
-        best_chromo2 , best_fitness2 = replacement(parents, Fitness_vals)
-        chromosomes  = best_chromo1 + best_chromo2
-        Fitness_vals = best_fitness1 + best_fitness2
+        #loop on ITERATIONS (400)
+        for i in range(ITERATIONS):
+            print(f"iteraion num :{i}")
 
-        write_to_file(chromosomes, Fitness_vals, i)
+            # get best (half) chromosomes and it's fitness
+            best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
 
-    plot_lists(best1_fitness, best2_fitness)
+            # save best (half) chromosomes and it's fitness in best_two_chromosomes and best_two_fitness list
+            best_two_chromosomes.extend([best_chromo1[0], best_chromo1[1]])
+            best_two_fitness.extend([best_fitness1[0] , best_fitness1[1]])
+
+            # Apply selection , crossover and mutation
+            parents = parent_selection(chromosomes, Fitness_vals)
+            parents = crossover(parents)
+            parents = mutation(parents)
+
+            #empty Fitness_vals list to save the new fitness
+            Fitness_vals = []
+
+            # loop on parents
+            for par in parents:
+                # run_single_chromo for each parent  and calc fitness values
+                game_state = run_single_chromo(par)
+                fitness_val = calc_fitness(game_state)
+                # append fitness value for each parent on fitness values
+                Fitness_vals.append(fitness_val)
+
+            # get best (half) parents and it's fitness
+            best_chromo2, best_fitness2 = replacement(parents, Fitness_vals)
+
+            # concatinate the best_chromo1 + best_chromo2 and best_fitness1 + best_fitness2
+            chromosomes = best_chromo1 + best_chromo2
+            Fitness_vals = best_fitness1 + best_fitness2
+
+            # write_to_file
+            write_to_file(chromosomes, Fitness_vals, i , evol)
+
+        # append best_two_chromosomes (results from iteration) to best_chromosomes  and fitness
+        best_chromosomes.append(best_two_chromosomes)
+        best_fitness.append(best_two_fitness)
+
+        # append chromosomes (results from iteration) to evolutions_chromosomes_list  and fitness
+        evolutions_chromosomes_list.append(chromosomes)
+        evolutions_fitness_list.append(Fitness_vals)
+
+        # plot_lists(best1_fitness, best2_fitness)
+
