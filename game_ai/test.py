@@ -1,5 +1,5 @@
 import random
-random.seed(42)
+# random.seed(42)
 from game_ai.tetris_base import *
 FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
 NUM_CHROMOSOMES = 14
@@ -247,7 +247,9 @@ def test_main():
     # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
     # run_single_chromo(chromo)
            # [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
-    chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, -18.1079, 65.2497, -15.62]
+    # chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, -18.1079, 65.2497, -15.62]
+    chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
     run_single_chromo(chromo)
 
 test_main()
+

@@ -1,6 +1,6 @@
 import random, time, pygame, sys
 from pygame.locals import *
-random.seed(42)
+# random.seed(42)
 
 ##############################################################################
 # SETTING UP GENERAL CONSTANTS

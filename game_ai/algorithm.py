@@ -3,12 +3,14 @@ import matplotlib.pyplot as plt
 import random
 random.seed(42)
 import copy
+import csv
 from game_ai.tetris_base import *
 FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\logfile.txt"
+DATA_FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
-NUM_EVOLUTIONS = 10
+NUM_EVOLUTIONS = 1
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
 
@@ -164,7 +166,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromo, max_score = 1000000, show = False):
+def run_single_chromo(chromo, max_score = 50000, show = False):
     """
     Simulates a game using a single chromosome.
 
@@ -411,38 +413,31 @@ def write_to_file(chromosomes, fitness, i , evol ):
 
 #***********************************************************
 #***********************************************************
-def plot_lists(list1, list2, file_name="plot.png"):
-    # Plotting the lists
-    plt.plot(list1, label='Chromosome 1')
-    plt.plot(list2, label='Chromosome 2')
+def write_data_to_file(data):
+    # Header for the CSV file
+    header = ["Evolution", "Iteration", "Chromosome", "Fitness"]
 
-    # Adding labels and title
-    plt.xlabel('Iterations')
-    plt.ylabel('Score')
-    plt.title('The progress of the best two chromosomes in all states')
+    # Writing data to CSV file
+    with open(DATA_FILE_PATH, 'w', newline='') as file:
+        writer = csv.writer(file)
 
-    # Adding legend
-    plt.legend()
+        # Write the header
+        writer.writerow(header)
 
-    # Showing the plot
-    plt.savefig(file_name)
-    plt.show()
+        # Write each row of data
+        for row in data:
+            writer.writerow(row)
+            file.flush()
 
-#***********************************************************
-#***********************************************************
+    print("CSV file created successfully.")
 def run_game_ai():
-    clear_file()
-    # save chromosomes and it's fitness from all evolutions
-    evolutions_chromosomes_list = []
-    evolutions_fitness_list = []
 
-    best_chromosomes = [] # save best two chromosomes for each evolutions (size = 2 * num of ITERATIONS(400) = 800)
-    best_fitness = []     # save best two fitness for each evolutions     (size = 2 * num of ITERATIONS(400) = 800)
 
+    clear_file() # clear log file
+    csv_list = [] # create csv file to easy analyse
 
     # loop on NUM_EVOLUTIONS (10)
     for evol in range (NUM_EVOLUTIONS):
-        print(f"Evolution : {evol}")
 
         with open(FILE_PATH, "a") as file:
             # Append content to the file
@@ -454,9 +449,6 @@ def run_game_ai():
         # save fitness for the Chormosomes
         Fitness_vals = list()
 
-        best_two_fitness = []    # save best two fitness for the Evolution
-        best_two_chromosomes = [] # save best two chromosomes for the Evolution
-
         #loop on Initialized Chormosomes
         for chromo in chromosomes:
             # run_single_chromo for each chromosome in Initialized Chormosomes and calc fitness values
@@ -467,14 +459,9 @@ def run_game_ai():
 
         #loop on ITERATIONS (400)
         for i in range(ITERATIONS):
-            print(f"iteraion num :{i}")
 
             # get best (half) chromosomes and it's fitness
             best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
-
-            # save best (half) chromosomes and it's fitness in best_two_chromosomes and best_two_fitness list
-            best_two_chromosomes.extend([best_chromo1[0], best_chromo1[1]])
-            best_two_fitness.extend([best_fitness1[0] , best_fitness1[1]])
 
             # Apply selection , crossover and mutation
             parents = parent_selection(chromosomes, Fitness_vals)
@@ -499,16 +486,21 @@ def run_game_ai():
             chromosomes = best_chromo1 + best_chromo2
             Fitness_vals = best_fitness1 + best_fitness2
 
+            # Add row for Each Chromosome
+            for num in range (NUM_CHROMOSOMES):
+                csv_row = []
+                csv_row.append(evol)
+                csv_row.append(i)
+                csv_row.append(chromosomes[num])
+                csv_row.append(Fitness_vals[num])
+                csv_list.append(csv_row)
+                # print(f"csv :{csv_row}")
+
+
+
             # write_to_file
             write_to_file(chromosomes, Fitness_vals, i , evol)
 
-        # append best_two_chromosomes (results from iteration) to best_chromosomes  and fitness
-        best_chromosomes.append(best_two_chromosomes)
-        best_fitness.append(best_two_fitness)
 
-        # append chromosomes (results from iteration) to evolutions_chromosomes_list  and fitness
-        evolutions_chromosomes_list.append(chromosomes)
-        evolutions_fitness_list.append(Fitness_vals)
 
-        # plot_lists(best1_fitness, best2_fitness)
-
+    write_data_to_file(csv_list)
