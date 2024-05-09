@@ -439,7 +439,9 @@ def run_game_ai():
 
     # loop on NUM_EVOLUTIONS (10)
     for evol in range (NUM_EVOLUTIONS):
-        cnt_max_scores = 0
+        cnt_max_score = 0
+        best_chromo = []
+        best_fitness = []
         with open(FILE_PATH, "a") as file:
             # Append content to the file
             file.write(f"===========================================================================\n")
@@ -460,7 +462,7 @@ def run_game_ai():
 
         #loop on ITERATIONS (400)
         for i in range(ITERATIONS):
-            if cnt_max_score != NUM_CHROMOSOMES:
+            if cnt_max_score < NUM_CHROMOSOMES:
                 # get best (half) chromosomes and it's fitness
                 best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
 
@@ -488,7 +490,16 @@ def run_game_ai():
                 # concatinate the best_chromo1 + best_chromo2 and best_fitness1 + best_fitness2
                 chromosomes = best_chromo1 + best_chromo2
                 Fitness_vals = best_fitness1 + best_fitness2
-
+                for index in range(NUM_CHROMOSOMES):
+                    if Fitness_vals[index] >= MAX_SCORE and chromosomes[index] not in best_chromo and cnt_max_score < NUM_CHROMOSOMES:
+                        best_chromo.append(copy.deepcopy(chromosomes[index]))
+                        best_fitness.append(copy.deepcopy(Fitness_vals[index]))
+                        print(f"best_chromo: {chromosomes[index]}")
+                        print(f"best_fitness: {Fitness_vals[index]}")
+                        cnt_max_score += 1
+            else:
+                chromosomes = best_chromo
+                Fitness_vals = best_fitness
             # Add row for Each Chromosome
             for num in range (NUM_CHROMOSOMES):
                 csv_row = []
