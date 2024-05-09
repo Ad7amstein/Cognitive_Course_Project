@@ -475,14 +475,15 @@ def run_game_ai():
                 Fitness_vals = []
 
                 # loop on parents
-                for par in parents:
-                    # run_single_chromo for each parent  and calc fitness values
-                    game_state = run_single_chromo(par)
-                    fitness_val = calc_fitness(game_state)
+                for par in range(NUM_CHROMOSOMES):
+                    if parents[par] in best_chromo:
+                        fitness_val = best_fitness[par]
+                    else:
+                        # run_single_chromo for each parent  and calc fitness values
+                        game_state = run_single_chromo(par)
+                        fitness_val = calc_fitness(game_state)
                     # append fitness value for each parent on fitness values
                     Fitness_vals.append(fitness_val)
-                    if fitness_val > MAX_SCORE:
-                        cnt_max_score += 1
 
                 # get best (half) parents and it's fitness
                 best_chromo2, best_fitness2 = replacement(parents, Fitness_vals)
@@ -494,8 +495,8 @@ def run_game_ai():
                     if Fitness_vals[index] >= MAX_SCORE and chromosomes[index] not in best_chromo and cnt_max_score < NUM_CHROMOSOMES:
                         best_chromo.append(copy.deepcopy(chromosomes[index]))
                         best_fitness.append(copy.deepcopy(Fitness_vals[index]))
-                        print(f"best_chromo: {chromosomes[index]}")
-                        print(f"best_fitness: {Fitness_vals[index]}")
+                        # print(f"best_chromo: {chromosomes[index]}")
+                        # print(f"best_fitness: {Fitness_vals[index]}")
                         cnt_max_score += 1
             else:
                 chromosomes = best_chromo
