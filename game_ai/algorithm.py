@@ -1,18 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-random.seed(42)
+random.seed(35)
 import copy
 import csv
 from game_ai.tetris_base import *
-FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\logfile.txt"
-DATA_FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitivepro\\Cognitive_Course_Project\\Data.csv"
+FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\logfile.txt"
+DATA_FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
 NUM_EVOLUTIONS = 1
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
+MAX_SCORE = 200000
 
 #***********************************************************
 #***********************************************************
@@ -166,7 +167,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromo, max_score = 50000, show = False):
+def run_single_chromo(chromo, max_score = MAX_SCORE, show = False):
     """
     Simulates a game using a single chromosome.
 
@@ -438,7 +439,7 @@ def run_game_ai():
 
     # loop on NUM_EVOLUTIONS (10)
     for evol in range (NUM_EVOLUTIONS):
-
+        cnt_max_scores = 0
         with open(FILE_PATH, "a") as file:
             # Append content to the file
             file.write(f"===========================================================================\n")
@@ -459,32 +460,34 @@ def run_game_ai():
 
         #loop on ITERATIONS (400)
         for i in range(ITERATIONS):
+            if cnt_max_score != NUM_CHROMOSOMES:
+                # get best (half) chromosomes and it's fitness
+                best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
 
-            # get best (half) chromosomes and it's fitness
-            best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
+                # Apply selection , crossover and mutation
+                parents = parent_selection(chromosomes, Fitness_vals)
+                parents = crossover(parents)
+                parents = mutation(parents)
 
-            # Apply selection , crossover and mutation
-            parents = parent_selection(chromosomes, Fitness_vals)
-            parents = crossover(parents)
-            parents = mutation(parents)
+                #empty Fitness_vals list to save the new fitness
+                Fitness_vals = []
 
-            #empty Fitness_vals list to save the new fitness
-            Fitness_vals = []
+                # loop on parents
+                for par in parents:
+                    # run_single_chromo for each parent  and calc fitness values
+                    game_state = run_single_chromo(par)
+                    fitness_val = calc_fitness(game_state)
+                    # append fitness value for each parent on fitness values
+                    Fitness_vals.append(fitness_val)
+                    if fitness_val > MAX_SCORE:
+                        cnt_max_score += 1
 
-            # loop on parents
-            for par in parents:
-                # run_single_chromo for each parent  and calc fitness values
-                game_state = run_single_chromo(par)
-                fitness_val = calc_fitness(game_state)
-                # append fitness value for each parent on fitness values
-                Fitness_vals.append(fitness_val)
+                # get best (half) parents and it's fitness
+                best_chromo2, best_fitness2 = replacement(parents, Fitness_vals)
 
-            # get best (half) parents and it's fitness
-            best_chromo2, best_fitness2 = replacement(parents, Fitness_vals)
-
-            # concatinate the best_chromo1 + best_chromo2 and best_fitness1 + best_fitness2
-            chromosomes = best_chromo1 + best_chromo2
-            Fitness_vals = best_fitness1 + best_fitness2
+                # concatinate the best_chromo1 + best_chromo2 and best_fitness1 + best_fitness2
+                chromosomes = best_chromo1 + best_chromo2
+                Fitness_vals = best_fitness1 + best_fitness2
 
             # Add row for Each Chromosome
             for num in range (NUM_CHROMOSOMES):
@@ -496,11 +499,7 @@ def run_game_ai():
                 csv_list.append(csv_row)
                 # print(f"csv :{csv_row}")
 
-
-
             # write_to_file
             write_to_file(chromosomes, Fitness_vals, i , evol)
-
-
 
     write_data_to_file(csv_list)
