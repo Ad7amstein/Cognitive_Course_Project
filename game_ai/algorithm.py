@@ -9,11 +9,11 @@ FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Cour
 DATA_FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
-ITERATIONS = 300
+ITERATIONS = 400
 NUM_EVOLUTIONS = 1
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
-MAX_SCORE = 400000
+MAX_SCORE = 100000
 
 # ***********************************************************
 # ***********************************************************
@@ -340,8 +340,10 @@ def crossover(pop):
         if (num > CROSSOVER_RATE):
             # Select a random parent from the population
             parent2 = random.choice(population)
-            while (chromo == parent2):
+            n_try = 10
+            while (chromo == parent2 and n_try):
                 parent2 = random.choice(population)
+                n_try -= 1
             # Select a crossover point
             point = len(chromo)//2
             # Perform crossover by combining the first part of the current chromosome with the second part of the selected parent chromosome
