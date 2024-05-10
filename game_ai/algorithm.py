@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-random.seed(35)
+random.seed(54)
 import copy
 import csv
 from game_ai.tetris_base import *
@@ -9,7 +9,7 @@ FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Cour
 DATA_FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
-ITERATIONS = 400
+ITERATIONS = 300
 NUM_EVOLUTIONS = 1
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
@@ -440,6 +440,7 @@ def run_game_ai():
     # loop on NUM_EVOLUTIONS (10)
     for evol in range (NUM_EVOLUTIONS):
         cnt_max_score = 0
+        curr_max_score = 0
         best_chromo = []
         best_fitness = []
         with open(FILE_PATH, "a") as file:
@@ -462,7 +463,9 @@ def run_game_ai():
 
         #loop on ITERATIONS (400)
         for i in range(ITERATIONS):
-            if cnt_max_score < NUM_CHROMOSOMES:
+            if curr_max_score == NUM_CHROMOSOMES:
+                pass
+            elif cnt_max_score < NUM_CHROMOSOMES:
                 # get best (half) chromosomes and it's fitness
                 best_chromo1, best_fitness1 = replacement(chromosomes, Fitness_vals)
 
@@ -475,16 +478,25 @@ def run_game_ai():
                 Fitness_vals = []
 
                 # loop on parents
+                print(f"Before FITNESS: ")
+                print(f"cnt_max_score: {cnt_max_score}")
+                print(f"best_chromo: {best_chromo}")
+                curr_max_score = 0
                 for par in range(NUM_CHROMOSOMES):
+                    print(f"parents[par]: {parents[par]} ==> ", end='')
                     if parents[par] in best_chromo:
-                        fitness_val = best_fitness[par]
+                        print("Found")
+                        fitness_val = best_fitness[best_chromo.index(parents[par])]
                     else:
+                        print("Not Found")
                         # run_single_chromo for each parent  and calc fitness values
-                        game_state = run_single_chromo(par)
+                        game_state = run_single_chromo(parents[par])
                         fitness_val = calc_fitness(game_state)
                     # append fitness value for each parent on fitness values
                     Fitness_vals.append(fitness_val)
-
+                    if fitness_val > MAX_SCORE:
+                        curr_max_score += 1
+                
                 # get best (half) parents and it's fitness
                 best_chromo2, best_fitness2 = replacement(parents, Fitness_vals)
 
@@ -495,14 +507,13 @@ def run_game_ai():
                     if Fitness_vals[index] >= MAX_SCORE and chromosomes[index] not in best_chromo and cnt_max_score < NUM_CHROMOSOMES:
                         best_chromo.append(copy.deepcopy(chromosomes[index]))
                         best_fitness.append(copy.deepcopy(Fitness_vals[index]))
-                        # print(f"best_chromo: {chromosomes[index]}")
-                        # print(f"best_fitness: {Fitness_vals[index]}")
                         cnt_max_score += 1
+                        print(f"cnt_max_score: {cnt_max_score}")
             else:
                 chromosomes = best_chromo
                 Fitness_vals = best_fitness
             # Add row for Each Chromosome
-            for num in range (NUM_CHROMOSOMES):
+            for num in range(NUM_CHROMOSOMES):
                 csv_row = []
                 csv_row.append(evol)
                 csv_row.append(i)
