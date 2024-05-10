@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-random.seed(54)
+random.seed(13)
 import copy
 import csv
 from game_ai.tetris_base import *
@@ -13,7 +13,7 @@ ITERATIONS = 300
 NUM_EVOLUTIONS = 1
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
-MAX_SCORE = 200000
+MAX_SCORE = 400000
 
 # ***********************************************************
 # ***********************************************************
