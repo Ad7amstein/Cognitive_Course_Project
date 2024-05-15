@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 random.seed(11111)
 import copy
@@ -14,7 +13,6 @@ NUM_EVOLUTIONS = 10
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
 MAX_SCORE = 2000000
-
 # ***********************************************************
 # ***********************************************************
 
@@ -340,8 +338,10 @@ def crossover(pop):
         if (num > CROSSOVER_RATE):
             # Select a random parent from the population
             parent2 = random.choice(population)
-            while (chromo == parent2):
+            n_try = 10
+            while (chromo == parent2 and n_try):
                 parent2 = random.choice(population)
+                n_try -= 1
             # Select a crossover point
             point = len(chromo)//2
             # Perform crossover by combining the first part of the current chromosome with the second part of the selected parent chromosome
