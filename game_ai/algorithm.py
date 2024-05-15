@@ -1,19 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-random.seed(13)
+random.seed(11111)
 import copy
 import csv
 from game_ai.tetris_base import *
-FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\logfile.txt"
-DATA_FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\Data.csv"
+FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\logfile.txt"
+DATA_FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
-ITERATIONS = 300
-NUM_EVOLUTIONS = 1
+ITERATIONS = 400
+NUM_EVOLUTIONS = 10
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
-MAX_SCORE = 400000
+MAX_SCORE = 2000000
 
 # ***********************************************************
 # ***********************************************************

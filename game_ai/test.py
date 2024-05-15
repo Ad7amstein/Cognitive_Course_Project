@@ -1,10 +1,10 @@
 import random
-# random.seed(42)
+random.seed(421)
 from game_ai.tetris_base import *
-FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
+FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\test"
 NUM_CHROMOSOMES = 14
 NUM_GENES = 9
-ITERATIONS = 400
+ITERATIONS = 600
 MUT_RATE = 0.1
 CROSSOVER_RATE = 0.3
 
@@ -141,7 +141,7 @@ def draw_game_on_screen(board, score, level, next_piece, falling_piece):
     FPSCLOCK.tick(FPS)      # Control the frame rate
 #***********************************************************
 #***********************************************************
-def run_single_chromo(chromosome, max_score = 100000, show = True):
+def run_single_chromo(chromosome, max_score = 10000000, show = True):
     """
     Simulates a game using a single chromosome.
 
@@ -191,7 +191,7 @@ def run_single_chromo(chromosome, max_score = 100000, show = True):
             get_best_move(board, falling_piece, score ,chromosome)
 
             # Update number of used pieces and the score
-            print(f"num_used_pieces : {num_used_pieces}")
+            # print(f"num_used_pieces : {num_used_pieces}")
             num_used_pieces += 1
             score           += 1
 
@@ -242,14 +242,33 @@ def run_single_chromo(chromosome, max_score = 100000, show = True):
     return game_state
 #***********************************************************
 #***********************************************************
+
+
+def write_to_file(i,game_state):
+    # Open a file in append mode (creates a new file if it doesn't exist)
+    with open(FILE_PATH, "a") as file:
+        # Append content to the file
+        file.write(
+            f"iteration : {i} --> num_used_pieces: {game_state[0]} , score: {game_state[1]}")
+        file.write(
+            "\n****************************************************************************\n")
+
+        # Flush the buffer to ensure data is written to the file immediately
+        file.flush()
+
+
+
 def test_main():
 
     # chromo = [-71.1966, 65.7304, -22.4267, -93.6919, -3.1324, 49.4697, -37.7855, 40.6373, 53.1462]
     # run_single_chromo(chromo)
-           # [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
+           #   [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
     # chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, -18.1079, 65.2497, -15.62]
-    chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
-    run_single_chromo(chromo)
+    # chromo = [27.89, -93.5355, -11.4173, -55.36, 47.29, 92.0191, 37.0764, 65.2497, -15.62]
+    for i in range (ITERATIONS) :
+        chromo = [-0.95, -21.01, -22.22, -47.07, 18.95, 56.1614, -89.6802, 51.33, 77.79]
+        game_state = run_single_chromo(chromo)
+        write_to_file( i , game_state )
 
 test_main()
 
