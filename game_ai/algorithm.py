@@ -4,8 +4,8 @@ random.seed(11111)
 import copy
 import csv
 from game_ai.tetris_base import *
-FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\logfile.txt"
-DATA_FILE_PATH = "C:\\Users\\htc\\Desktop\\cognitive_project\\Cognitive_Course_Project\\Data.csv"
+FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\log_file.txt"
+DATA_FILE_PATH = "F:\FCAI\AI\Second Semester\Cognitive Science\project\Cognitive_Course_Project\Data.csv"
 NUM_CHROMOSOMES = 12
 NUM_GENES = 9
 ITERATIONS = 400
